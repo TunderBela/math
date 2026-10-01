@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kids Math Practice</title>
+  <style>
+    :root {
+      --bg-color: #f0f9ff;
+      --card-bg: #ffffff;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent: #f59e0b;
+      --text: #1e293b;
+      --success: #10b981;
+      --error: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: var(--card-bg);
+      border-radius: 24px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      width: 100%;
+      max-width: 500px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 24px;
+      font-weight: 800;
+    }
+
+    /* Checkboxok elrendezése */
+    .difficulty-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+      background: #f1f5f9;
+      padding: 12px;
+      border-radius: 16px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #475569;
+      cursor: pointer;
+      user-select: none;
+      background: white;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .checkbox-label:hover {
+      border-color: #cbd5e1;
+    }
+
+    /* Műveleti gombok (egymás alatt) */
+    .operations-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .op-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, background-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .op-btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    .op-btn:active {
+      transform: translateY(0);
+    }
+
+    .op-btn.active {
+      background: var(--accent);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+
+    /* Feladat és válasz mező */
+    .game-area {
+      display: none;
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 24px;
+      border: 2px dashed #cbd5e1;
+    }
+
+    .game-area.active {
+      display: block;
+    }
+
+    .problem {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    input[type="number"] {
+      width: 140px;
+      padding: 10px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      border: 3px solid #cbd5e1;
+      border-radius: 12px;
+      outline: none;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--primary);
+    }
+
+    .submit-btn {
+      background: var(--success);
+      color: white;
+      border: none;
+      padding: 0 20px;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .feedback {
+      font-size: 1.1rem;
+      font-weight: 700;
+      min-height: 28px;
+    }
+
+    .feedback.correct { color: var(--success); }
+    .feedback.incorrect { color: var(--error); }
+
+    .score-board {
+      margin-top: 20px;
+      font-weight: 700;
+      color: #64748b;
+      display: flex;
+      justify-content: space-around;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Math Practice</h1>
+
+    <!-- 4 Tickbox -->
+    <div class="difficulty-options">
+      <label class="checkbox-label">
+        <input type="checkbox" id="easy" checked onchange="handleDifficultyChange('easy')">
+        EASY
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="medium" onchange="handleDifficultyChange('medium')">
+        MEDIUM
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="hard" onchange="handleDifficultyChange('hard')">
+        HARD
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="negative" onchange="if(currentOp) generateProblem();">
+        NEGATIVE
+      </label>
+    </div>
+
+    <!-- Menüpontok egymás alatt -->
+    <div class="operations-menu">
+      <button class="op-btn" onclick="startPractice('+')">
+        <span>+</span> ADDITION
+      </button>
+      <button class="op-btn" onclick="startPractice('-')">
+        <span>-</span> SUBTRACTION
+      </button>
+      <button class="op-btn" onclick="startPractice('÷')">
+        <span>÷</span> DIVISION
+      </button>
+      <button class="op-btn" onclick="startPractice('×')">
+        <span>×</span> MULTIPLICATION
+      </button>
+    </div>
+
+    <!-- Feladatkezelő terület -->
+    <div class="game-area" id="gameArea">
+      <div class="problem" id="problemDisplay">? + ?</div>
+      <form onsubmit="checkAnswer(event)" class="input-group">
+        <input type="number" id="answerInput" required autocomplete="off">
+        <button type="submit" class="submit-btn">OK</button>
+      </form>
+      <div class="feedback" id="feedback"></div>
+      
+      <div class="score-board">
+        <span>Correct: <strong id="scoreCorrect">0</strong></span>
+        <span>Total: <strong id="scoreTotal">0</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentOp = null;
+    let currentAnswer = null;
+    let correctCount = 0;
+    let totalCount = 0;
+
+    function handleDifficultyChange(changed) {
+      const easy = document.getElementById('easy');
+      const medium = document.getElementById('medium');
+      const hard = document.getElementById('hard');
+
+      if (changed === 'easy' && easy.checked) {
+        medium.checked = false;
+        hard.checked = false;
+      } else if (changed === 'medium' && medium.checked) {
+        easy.checked = false;
+        hard.checked = false;
+      } else if (changed === 'hard' && hard.checked) {
+        easy.checked = false;
+        medium.checked = false;
+      }
+
+      if (!easy.checked && !medium.checked && !hard.checked) {
+        document.getElementById(changed).checked = true;
+      }
+
+      if (currentOp) generateProblem();
+    }
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getRange() {
+      if (document.getElementById('easy').checked) return { min: 1, max: 150 };
+      if (document.getElementById('medium').checked) return { min: 150, max: 800 };
+      return { min: 800, max: 3000 };
+    }
+
+    function startPractice(op) {
+      currentOp = op;
+      
+      document.querySelectorAll('.op-btn').forEach(btn => {
+        if (btn.textContent.includes(op)) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      document.getElementById('gameArea').classList.add('active');
+      document.getElementById('feedback').textContent = '';
+      generateProblem();
+    }
+
+    function generateProblem() {
+      const { min, max } = getRange();
+      const allowNegative = document.getElementById('negative').checked;
+
+      let num1, num2;
+
+      if (currentOp === '+') {
+        num1 = getRandomInt(min, max);
+        num2 = getRandomInt(min, max);
+        currentAnswer = num1 + num2;
+
+      } else if (currentOp === '-') {
+        num1 = getRandomInt(min, max);
+        num2 = getRandomInt(min, max);
+        if (!allowNegative && num1 < num2) {
+          [num1, num2] = [num2, num1];
+        }
+        currentAnswer = num1 - num2;
+
+      } else if (currentOp === '×') {
+        // Egyik szorzó max 2 számjegyű (max 99), a másik a tartománynak megfelelő
+        num1 = getRandomInt(1, Math.min(99, max));
+        num2 = getRandomInt(min, max);
+
+        // Véletlenszerűen megcseréljük a sorrendet, hogy ne mindig az első legyen a kisebb
+        if (Math.random() > 0.5) [num1, num2] = [num2, num1];
+
+        currentAnswer = num1 * num2;
+
+      } else if (currentOp === '÷') {
+        // Osztó maximum 2 számjegyű (1 - 99)
+        const divisor = getRandomInt(2, 99);
+        
+        // A hányados (eredmény) igazodik a nehézségi tartományhoz
+        const quotient = getRandomInt(Math.max(1, Math.floor(min / divisor)), Math.max(2, Math.floor(max / divisor)));
+
+        num1 = divisor * quotient; // Az osztandó
+        num2 = divisor;           // Az osztó
+        currentAnswer = quotient;
+      }
+
+      // Negatív előjelek alkalmazása
+      if (allowNegative) {
+        if (Math.random() > 0.5) num1 = -num1;
+        if (Math.random() > 0.5) num2 = -num2;
+
+        if (currentOp === '+') currentAnswer = num1 + num2;
+        if (currentOp === '-') currentAnswer = num1 - num2;
+        if (currentOp === '×') currentAnswer = num1 * num2;
+        if (currentOp === '÷') currentAnswer = num1 / num2;
+      }
+
+      const formatNum = (n) => n < 0 ? `(${n})` : n;
+
+      document.getElementById('problemDisplay').textContent = `${formatNum(num1)} ${currentOp} ${formatNum(num2)} = ?`;
+      const input = document.getElementById('answerInput');
+      input.value = '';
+      input.focus();
+    }
+
+    function checkAnswer(event) {
+      event.preventDefault();
+      const input = document.getElementById('answerInput');
+      const userAnswer = parseInt(input.value, 10);
+      const feedback = document.getElementById('feedback');
+
+      if (isNaN(userAnswer)) return;
+
+      totalCount++;
+
+      if (userAnswer === currentAnswer) {
+        correctCount++;
+        feedback.textContent = 'Great job! Correct!';
+        feedback.className = 'feedback correct';
+        generateProblem();
+      } else {
+        feedback.textContent = `Try again! (Answer was: ${currentAnswer})`;
+        feedback.className = 'feedback incorrect';
+        input.value = '';
+        input.focus();
+      }
+
+      document.getElementById('scoreCorrect').textContent = correctCount;
+      document.getElementById('scoreTotal').textContent = totalCount;
+    }
+  </script>
+</body>
+</html>
